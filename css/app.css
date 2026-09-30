@@ -63,3 +63,6 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .texte-officiel{white-space:pre-wrap;font-size:14px;max-height:60vh;overflow:auto;overflow-wrap:anywhere}
 ul.f-cond{margin:4px 0;padding-left:18px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Barres collantes (entete, recherche) : laisser la place quand un element est amene en vue (defilement, focus, ancre) */
+main > *,main section > *,.carte{scroll-margin-top:calc(64px + env(safe-area-inset-top))}
+.filtres,.recherche + .filtres{scroll-margin-top:calc(130px + env(safe-area-inset-top))}
