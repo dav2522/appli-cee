@@ -14,8 +14,9 @@ self.addEventListener("activate", (e) => {
 });
 function ouvrirDb() {
   return new Promise((ok, ko) => {
-    const r = indexedDB.open("appli-cee", 1);
-    r.onupgradeneeded = () => { const db = r.result; for (const s of ["donnees", "dossiers", "file", "partages"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s); };
+    // Meme version et memes stores que js/stockage.js (ouvrir en version inferieure echouerait : VersionError)
+    const r = indexedDB.open("appli-cee", 2);
+    r.onupgradeneeded = () => { const db = r.result; for (const s of ["donnees", "dossiers", "file", "partages", "fichiers"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s); };
     r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
   });
 }

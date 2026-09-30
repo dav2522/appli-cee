@@ -160,6 +160,18 @@ def main():
                 pg.click("#q-historique details summary")
                 verifier("simulée" in pg.inner_text("#q-historique"), "réponse conservée")
                 pg.screenshot(path=os.path.join(CAPTURES, "historique-dark.png"))
+                # photo PNG a fond transparent -> JPEG a fond blanc (pas noir)
+                transparent = os.path.join(RACINE, "tests", "rendu", "photo_test.png")
+                im = Image.new("RGBA", (600, 800), (0, 0, 0, 0)); im.paste((0, 0, 0, 255), (100, 100, 500, 700)); im.save(transparent)
+                pg.set_input_files("#d-plus", transparent)
+                pg.wait_for_function("document.querySelectorAll('[data-voir]').length === 3", timeout=10000)
+                coin = pg.evaluate("""() => new Promise((ok) => { const r = indexedDB.open('appli-cee'); r.onsuccess = () => {
+                    const c = r.result.transaction('fichiers').objectStore('fichiers').getAll(); c.onsuccess = async () => {
+                      const e = c.result.sort((a, b) => a.ajoute_le.localeCompare(b.ajoute_le)).at(-1);
+                      const bm = await createImageBitmap(e.blob); const cv = document.createElement('canvas'); cv.width = bm.width; cv.height = bm.height;
+                      const ctx = cv.getContext('2d'); ctx.drawImage(bm, 0, 0); const p = ctx.getImageData(2, 2, 1, 1).data; ok({ type: e.type, r: p[0], l: bm.width });
+                    }; }; })""")
+                verifier(coin["type"] == "image/jpeg" and coin["l"] == 600 and coin["r"] > 200, "PNG transparent -> JPEG fond blanc (obtenu : %s)" % coin)
                 # suppression du dossier -> store fichiers vide
                 pg.once("dialog", lambda dlg: dlg.accept())
                 pg.click("#d-supprimer")
@@ -170,6 +182,17 @@ def main():
                 pg.goto(base + "#/aujourdhui")
                 pg.wait_for_function("navigator.serviceWorker.controller !== null", timeout=15000)
                 pg.wait_for_timeout(1500)
+                # partage Android (share_target) : POST ./partage traite par le service worker (base IndexedDB v2) -> nouveau dossier
+                pg.evaluate("""() => { const f = document.createElement('form'); f.method = 'POST'; f.action = './partage'; f.enctype = 'multipart/form-data';
+                    for (const [n, v] of [['titre', 'Devis partagé'], ['texte', 'Chaudière biomasse 320 kW pour un entrepôt']]) { const i = document.createElement('input'); i.name = n; i.value = v; f.appendChild(i); }
+                    document.body.appendChild(f); f.submit(); }""")
+                pg.wait_for_url("**#/dossier/d*", timeout=15000)
+                pg.wait_for_selector("#d-titre", timeout=10000)
+                verifier(pg.input_value("#d-titre") == "Devis partagé", "partage Android via le service worker (titre : %r)" % pg.input_value("#d-titre"))
+                verifier(pg.locator("[data-fiche]").count() > 0, "partage Android : fiches suggérées depuis le texte partagé")
+                pg.once("dialog", lambda dlg: dlg.accept())
+                pg.click("#d-supprimer")
+                pg.wait_for_url("**#/dossiers", timeout=10000)
                 ctx.set_offline(True)
                 pg.goto(base + "#/aujourdhui")
                 pg.wait_for_timeout(800)

@@ -11,7 +11,8 @@ export async function reduireImage(file, max = COTE_MAX, qualite = 0.85) {
   const { l, h, reduit } = dimensionsReduites(bitmap.width, bitmap.height, max);
   if (!reduit && file.type === "image/jpeg" && file.size <= 3 * 1048576) { bitmap.close(); return file; }
   const canvas = document.createElement("canvas"); canvas.width = l; canvas.height = h;
-  canvas.getContext("2d").drawImage(bitmap, 0, 0, l, h); bitmap.close();
+  const ctx = canvas.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, l, h);   // fond blanc : un PNG transparent deviendrait noir en JPEG
+  ctx.drawImage(bitmap, 0, 0, l, h); bitmap.close();
   const blob = await new Promise((ok) => canvas.toBlob(ok, "image/jpeg", qualite));
   return blob ? new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }) : file;
 }
