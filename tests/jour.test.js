@@ -19,5 +19,6 @@ test("delta vide -> aucune rubrique ; JO et CdP", () => {
   assert.equal(r[0].items[0].code, "AGRI-EQ-110");
 });
 test("nettoyerTelegram", () => {
-  assert.equal(nettoyerTelegram("<b>⚡ Veille</b>\n<script>x</script><a href=\"https://a.fr\">lien</a> <u>u</u>"), "<b>⚡ Veille</b><br><a href=\"https://a.fr\">lien</a> u");
+  assert.equal(nettoyerTelegram("<b>⚡ Veille</b>\n<script>x</script><a href=\"https://a.fr\">lien</a> <u>u</u>"), "<b>⚡ Veille</b><br><a href=\"https://a.fr\" target=\"_blank\" rel=\"noopener\">lien</a> u");
+  assert.equal(nettoyerTelegram("<a href=\"https://a.fr\" onclick=\"x()\">l</a><a href=\"javascript:x\">j</a>"), "<a href=\"https://a.fr\" target=\"_blank\" rel=\"noopener\">l</a>j</a>");   // balise fermante orpheline : inoffensive
 });

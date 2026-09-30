@@ -1,5 +1,5 @@
 // sw.js — coquille en cache, donnees jamais en cache (API avec jeton), reception des partages
-const CACHE = "appli-cee-v1";
+const CACHE = "appli-cee-v2";
 const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest", "./js/app.js", "./js/routeur.js",
   "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js",
   "./js/partage.js", "./js/vues/aujourdhui.js", "./js/vues/fiches.js", "./js/vues/fiche.js", "./js/vues/echeances.js",
@@ -33,7 +33,14 @@ self.addEventListener("fetch", (e) => {
   }
   if (e.request.method !== "GET" || url.hostname === "api.github.com") return;
   if (url.origin === location.origin || url.hostname.endsWith("gstatic.com") || url.hostname.endsWith("googleapis.com")) {
-    e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request).then((rep) => {
-      if (rep.ok) caches.open(CACHE).then((c) => c.put(e.request, rep.clone())); return rep; }).catch(() => caches.match("./index.html"))));
+    // Cache d'abord (hors ligne, instantane), puis rafraichissement en arriere-plan : une nouvelle version de
+    // l'appli est servie au chargement suivant, sans vider le cache ni changer le nom du cache.
+    e.respondWith(caches.open(CACHE).then(async (c) => {
+      const enCache = await c.match(e.request);
+      const reseau = fetch(e.request).then((rep) => { if (rep.ok) c.put(e.request, rep.clone()); return rep; }).catch(() => null);
+      if (enCache) { e.waitUntil(reseau); return enCache; }
+      const rep = await reseau;
+      return rep || (await c.match("./index.html")) || Response.error();
+    }));
   }
 });

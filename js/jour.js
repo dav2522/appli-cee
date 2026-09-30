@@ -37,5 +37,6 @@ export function rubriquesDuJour(delta) {
 }
 export function nettoyerTelegram(html) {
   return String(html || "").replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<(?!\/?(b|i|code)>|a href="https?:\/\/[^"]+"|\/a>)[^>]*>/gi, "").replace(/\n/g, "<br>");
+    .replace(/<a\s[^>]*href="(https?:\/\/[^"]+)"[^>]*>/gi, '<a href="$1" target="_blank" rel="noopener">')
+    .replace(/<(?!\/?(b|i|code)>|a href="https?:\/\/[^"]+" target="_blank" rel="noopener">|\/a>)[^>]*>/gi, "").replace(/\n/g, "<br>");
 }

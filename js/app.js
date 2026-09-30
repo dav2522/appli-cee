@@ -48,7 +48,11 @@ export const actions = {
     etat.synchro.enCours = false; document.getElementById("b-synchro").classList.remove("actif");
     etat.synchro.erreur = r.ok ? null : r.erreur;
     if (r.ok) { await chargerCache(); try { await viderFile({ stockage, client }); } catch { /* file rejouee plus tard */ } }
-    messageSynchro(); rendre();
+    messageSynchro();
+    // Une synchro en arriere-plan ne doit pas effacer une saisie en cours (dossier, commentaire) : le rendu
+    // est differe a la prochaine navigation si un champ a le focus ou si un dossier est en cours d'edition.
+    const saisie = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "") || etat.route.vue === "dossier";
+    if (!saisie || force) rendre();
     return r;
   },
   async chargerTexte(secteur) {
