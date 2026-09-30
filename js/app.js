@@ -9,8 +9,9 @@ import * as vEcheances from "./vues/echeances.js";
 import * as vDossiers from "./vues/dossiers.js";
 import * as vReglages from "./vues/reglages.js";
 import { dateFr } from "./format.js";
+import { supprimerFichiersDossier } from "./fichiers.js";
 
-export const VERSION_APPLI = "1.0.0";
+export const VERSION_APPLI = "1.1.0";
 const VUES = { aujourdhui: vAujourdhui, fiches: vFiches, fiche: vFiche, echeances: vEcheances, dossiers: vDossiers, dossier: vDossiers, reglages: vReglages };
 const ONGLET = { aujourdhui: "aujourdhui", fiches: "fiches", fiche: "fiches", echeances: "echeances", dossiers: "dossiers", dossier: "dossiers", reglages: "reglages" };
 const main = document.getElementById("vue"), bandeau = document.getElementById("bandeau");
@@ -72,9 +73,11 @@ export const actions = {
     client = etat.reglages.jeton ? creerClient(fetch.bind(window), etat.reglages.jeton) : null;
     return actions.synchroniser(true);
   },
+  enregistrerCle(cle) { etat.reglages.cle_api = (cle || "").trim(); ecrireReglages(etat.reglages); return etat.reglages.cle_api; },
   async viderCache() { await stockage.vider("donnees"); etat.donnees = null; etat.index = {}; etat.textes = {}; etat.synchro.derniere = null; rendre(); },
   async enregistrerDossier(d) { d.maj_le = new Date().toISOString(); await stockage.ecrire("dossiers", d.id, d); etat.dossiers = (await stockage.tout("dossiers")).map((x) => x.val); return d; },
-  async supprimerDossier(id) { await stockage.supprimer("dossiers", id); etat.dossiers = (await stockage.tout("dossiers")).map((x) => x.val); },
+  async supprimerDossier(id) { await supprimerFichiersDossier(stockage, id); await stockage.supprimer("dossiers", id); etat.dossiers = (await stockage.tout("dossiers")).map((x) => x.val); },
+  stockage,
   async lirePartage() { const p = await stockage.lire("partages", "courant"); if (p) await stockage.supprimer("partages", "courant"); return p; },
   rendre: () => rendre(), etat,
 };
