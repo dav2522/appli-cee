@@ -136,6 +136,8 @@ def main():
                 pg.click("[data-voir='0']")
                 pg.wait_for_selector("#v-zone canvas", timeout=15000)
                 pg.wait_for_function("document.querySelector('#v-zone .num').textContent.includes('page 1 /')", timeout=15000)
+                encre = pg.evaluate("() => { const c = document.querySelector('#v-zone canvas'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 16) if (d[i] < 128) n++; return n; }")
+                verifier(encre > 100, "page PDF rendue avec du texte (%d pixels sombres)" % encre)
                 # question -> reponse streamee, cout, historique
                 pg.click("[data-sugg='0']")
                 pg.click("#q-poser")

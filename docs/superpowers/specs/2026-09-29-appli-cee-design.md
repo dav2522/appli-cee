@@ -1,5 +1,7 @@
 # Appli CEE — cahier des charges (design validé le 2026-09-29)
 
+> Complété le 2026-09-30 par `2026-09-30-dossier-questions-design.md` (documents conservés, questions à Claude avec clé API, historique).
+
 ## 1. Intention
 
 David (Solhy Énergie) veut, sur son téléphone Android, être « incollable sur les fiches CEE au jour le
