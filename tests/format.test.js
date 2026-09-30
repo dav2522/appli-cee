@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { giga, volume, dateFr, jours, md, ech, fourchette, totalCout, ico } from "../js/format.js";
+import { giga, volume, dateFr, jours, md, ech, fourchette, totalCout, ico, mdBloc } from "../js/format.js";
 
 test("giga et volume (regles du rapport)", () => {
   assert.equal(giga(23.4), "23 gigas"); assert.equal(giga(1.7), "1,7 giga"); assert.equal(giga(2), "2 gigas");
@@ -20,4 +20,9 @@ test("texte", () => {
   assert.deepEqual(totalCout({ postes: [["a", 1, 2], ["b", 3, 4]] }), { min: 4, max: 6 });
   assert.equal(totalCout(null), null);
   assert.equal(ico("up"), '<svg class="ico" aria-hidden="true"><use href="#i-up"/></svg>');
+});
+test("mdBloc : paragraphes, titres, listes, gras, code", () => {
+  const h = mdBloc("## Conformité\n\nLe devis est **conforme**.\nSuite.\n\n- point `un`\n- point deux\n\n1. premier\n2. second");
+  assert.equal(h, "<h3>Conformité</h3><p>Le devis est <b>conforme</b>.<br>Suite.</p><ul><li>point <code>un</code></li><li>point deux</li></ul><ol><li>premier</li><li>second</li></ol>");
+  assert.equal(mdBloc("<script>"), "<p>&lt;script&gt;</p>");
 });

@@ -3,6 +3,21 @@ export function ech(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 export function md(t) { return ech(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+function enLigne(s) { return md(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+// Markdown minimal des reponses de Claude : paragraphes, titres, listes, gras, code en ligne (tout est echappe)
+export function mdBloc(t) {
+  const out = []; let para = [], liste = null;
+  const fin = () => { if (para.length) { out.push("<p>" + para.map(enLigne).join("<br>") + "</p>"); para = []; } if (liste) { out.push("</" + liste + ">"); liste = null; } };
+  for (const l of String(t || "").replace(/\r/g, "").split("\n")) {
+    if (!l.trim()) { fin(); continue; }
+    const titre = l.match(/^(#{1,4})\s+(.*)/), item = l.match(/^\s*(?:[-*•]|(\d+)[.)])\s+(.*)/);
+    if (titre) { fin(); const n = titre[1].length <= 2 ? 3 : 4; out.push(`<h${n}>${enLigne(titre[2])}</h${n}>`); continue; }   // h2 reste le titre de section de la page
+    if (item) { const type = item[1] ? "ol" : "ul"; if (liste !== type) { fin(); out.push("<" + type + ">"); liste = type; } out.push("<li>" + enLigne(item[2]) + "</li>"); continue; }
+    if (liste) fin();
+    para.push(l);
+  }
+  fin(); return out.join("");
+}
 export function ico(nom) { return `<svg class="ico" aria-hidden="true"><use href="#i-${nom}"/></svg>`; }
 function fr(s) { return s.replace(".", ","); }
 export function giga(x) {

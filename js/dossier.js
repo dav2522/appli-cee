@@ -57,11 +57,15 @@ function section(texte, debut, fins, max = 6000) {
   s = s.slice(0, j).trim();
   return s.length > max ? s.slice(0, max) + "\n[…]" : s;
 }
+// Extraits du texte officiel utiles a une expertise : conditions de delivrance et bareme (aussi utilises par questions.js)
+export function sectionsTexte(texteOfficiel) {
+  return { conditions: section(texteOfficiel, /\d\.\s*Conditions pour la d[ée]livrance/i, [/\n\s*\d\.\s*Dur[ée]e de vie/i, /\n\s*\d\.\s*Montant de certificats/i]),
+    bareme: section(texteOfficiel, /\d\.\s*Montant de certificats/i, [/Annexe 1/i], 4000) };
+}
 const LIB = { puissance_kw: "Puissance", surface_m2: "Surface", etas: "Etas (%)", cop: "COP", scop: "SCOP", zone: "Zone climatique", montant_ht: "Montant HT du devis (€)", energie: "Énergie remplacée", secteur: "Secteur" };
 export function construireDossier({ fiche, texteOfficiel, parametres = {}, devisTexte = "", fichiers = [], avis, aujourdhui = new Date().toISOString().slice(0, 10) }) {
   const c = fiche.carte || {};
-  const cond = section(texteOfficiel, /\d\.\s*Conditions pour la d[ée]livrance/i, [/\n\s*\d\.\s*Dur[ée]e de vie/i, /\n\s*\d\.\s*Montant de certificats/i]);
-  const bareme = section(texteOfficiel, /\d\.\s*Montant de certificats/i, [/Annexe 1/i], 4000);
+  const { conditions: cond, bareme } = sectionsTexte(texteOfficiel);
   let devis = String(devisTexte || "").trim();
   const tronque = devis.length > DEVIS_MAX;
   if (tronque) devis = devis.slice(0, DEVIS_MAX) + "\n[texte du devis tronqué à " + DEVIS_MAX + " caractères]";
