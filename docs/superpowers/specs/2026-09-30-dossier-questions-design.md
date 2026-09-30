@@ -1,6 +1,8 @@
 # Dossier : documents et questions à Claude — cahier des charges
 
-Date : 2026-09-30. Complète la spec du 2026-09-29 (`2026-09-29-appli-cee-design.md`). Demande de David :
+Date : 2026-09-30.
+
+> **Révisé le 2026-09-30 (après-midi), à la demande de David (« pas d'API, je ne veux pas payer en plus »)** : la clé API et les appels directs sont retirés (v1.2.0). « Ouvrir dans Claude » partage la question et les documents vers l'appli Claude, qui consulte les données grâce au connecteur MCP « Appli CEE » (dépôt `appli-cee-donnees`, `connecteur/`). Les sections 1 et 3 ci-dessous décrivent la v1.1.0. Complète la spec du 2026-09-29 (`2026-09-29-appli-cee-design.md`). Demande de David :
 
 > Dans l'onglet « Dossier », ajouter l'import de fichiers (PDF ou images : devis, études de dimensionnement…). L'utilisateur doit pouvoir interagir avec ces documents et poser toutes sortes de questions (analyser un devis, contre-expertise d'une étude de dimensionnement pour vérifier sa conformité aux exigences du COFRAC…). Sous le document et l'espace d'échange, un historique dépliable des questions posées.
 

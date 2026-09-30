@@ -1,7 +1,6 @@
 // js/vues/dossiers.js — liste des dossiers et editeur (documents conserves, questions a Claude, suggestion, parametres, dossier, partage, reponse)
 import { ech, ico, dateFr } from "../format.js";
 import { suggererFiches, extraireParametres, construireDossier, nouveauDossier } from "../dossier.js";
-import { normaliserQuestions } from "../questions.js";
 import { rendreDocuments, rendreQuestions, monterDocuments, monterQuestions, objetsDuDossier } from "./dossier-questions.js";
 export const titre = (etat, p) => (etat.route.vue === "dossier" ? (p.id === "nouveau" ? "Nouveau dossier" : "Dossier") : "Dossiers");
 const LIB = { puissance_kw: "Puissance (kW)", surface_m2: "Surface (m²)", etas: "Etas (%)", cop: "COP", scop: "SCOP", zone: "Zone (H1/H2/H3)", montant_ht: "Montant HT (€)", energie: "Énergie remplacée", secteur: "Secteur" };
@@ -69,7 +68,7 @@ export async function monter(root, etat, actions, p) {
   const fiches = etat.donnees?.fiches?.fiches || [];
   if (!etat.ui.dossier || etat.ui.dossier.id !== p.id) {
     let d;
-    etat.ui.fichierVu = 0; etat.ui.reponseCourante = null; etat.ui.brouillonQuestion = "";
+    etat.ui.fichierVu = 0; etat.ui.messageQuestion = ""; etat.ui.brouillonQuestion = "";
     if (p.id === "nouveau") {
       d = nouveauDossier({ fiche: p.fiche || "" }); d.questions = [];
       let files = etat.ui.fichiersEnAttente || []; etat.ui.fichiersEnAttente = null;
@@ -80,7 +79,7 @@ export async function monter(root, etat, actions, p) {
       location.replace("#/dossier/" + d.id); etat.route = { vue: "dossier", params: { id: d.id } };
     } else {
       d = etat.dossiers.find((x) => x.id === p.id) || nouveauDossier({}); d.id = d.id || p.id;
-      d.fichiers = d.fichiers || []; d.questions = normaliserQuestions(d.questions || []);
+      d.fichiers = d.fichiers || []; d.questions = d.questions || [];
       d.suggestions = d.devis_texte ? suggererFiches(d.devis_texte, fiches) : [];
     }
     etat.ui.dossier = d; actions.rendre(); return;

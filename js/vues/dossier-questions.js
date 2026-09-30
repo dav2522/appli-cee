@@ -1,10 +1,9 @@
 // js/vues/dossier-questions.js — section « Documents & questions » d'un dossier (rendu pur + interactions monter*)
 import { ech, ico, mdBloc } from "../format.js";
-import { SUGGESTIONS, formaterCout, messageErreur, construireRequete, verifierTaille, nouvelleQuestion } from "../questions.js";
-import { chargerPourRequete, lireBlob, supprimerFichier } from "../fichiers.js";
+import { SUGGESTIONS, MESSAGES_PARTAGE, texteAPartager, nouvelleQuestion } from "../questions.js";
+import { lireBlob, supprimerFichier } from "../fichiers.js";
 const ko = (o) => Math.max(1, Math.round((o || 0) / 1024)) + " Ko";
 const heure = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }); };
-export function libellePoser(etat) { return etat.reglages.cle_api ? "Poser la question" : "Partager la question vers Claude"; }
 export function rendreDocuments(d, ui = {}) {
   const vu = ui.fichierVu ?? 0;
   const liste = d.fichiers.length ? `<ul class="docs">${d.fichiers.map((f, i) => `<li><button type="button" class="doc" data-voir="${i}" aria-pressed="${i === vu}">${ico("fichier")} <span>${ech(f.nom)}</span> <small>${ko(f.taille)}${f.cle ? "" : " · non conservé : réimporter"}</small></button><button type="button" class="x" data-retirer="${i}" aria-label="Retirer ${ech(f.nom)}">${ico("x")}</button></li>`).join("")}</ul>` : `<p class="vide">Aucun document. Ajoutez un devis, une étude ou une photo, ou partagez-les depuis une autre appli.</p>`;
@@ -12,27 +11,19 @@ export function rendreDocuments(d, ui = {}) {
 <div class="actions"><label class="btn sec" for="d-plus">${ico("plus")} Ajouter (PDF, photo, texte)</label><input id="d-plus" type="file" accept="application/pdf,image/*,text/plain" multiple class="sr"></div>
 <div id="v-zone" class="visionneuse" ${d.fichiers.length ? "" : "hidden"}></div></section>`;
 }
-function rendreReponse(ui) {
-  const r = ui.reponseCourante; if (!r) return "";
-  const texte = r.reponse || r.texte || "";
-  const corps = texte ? mdBloc(texte) : (r.etat === "en_cours" ? "<p class='resume'>Claude lit les documents…</p>" : "");
-  const pied = r.etat === "erreur" ? `<p class="bandeau bad">${ech(messageErreur(r.erreur, r.detail))}</p>` : r.etat === "partage" ? `<p class="resume">Question partagée vers Claude : collez la réponse dans l'historique ci-dessous.</p>` : r.usage ? `<p class="resume">${ech(formaterCout(r.usage))}${r.stop === "max_tokens" ? " · " + ech(messageErreur("tronquee")) : ""}</p>` : "";
-  return `<div class="q-courante"><p class="q-question">${ech(r.question)}</p><div class="q-reponse">${corps}</div>${pied}</div>`;
-}
 export function rendreHistorique(d) {
   const qs = [...(d.questions || [])].reverse();
   const n = qs.length;
-  return `<details id="q-historique"><summary>Historique — ${n} question${n > 1 ? "s" : ""}</summary>${n ? `<ul class="historique">${qs.map((q) => `<li class="hist ${ech(q.etat)}"><div class="hist-tete"><span class="resume">${heure(q.le)}</span><span class="actions-mini"><button type="button" class="lien" data-reprendre="${ech(q.id)}">Reprendre</button><button type="button" class="lien" data-supprimer-q="${ech(q.id)}">Supprimer</button></span></div><p class="q-question">${ech(q.question)}</p>
-${q.etat === "partage" ? `<textarea data-coller="${ech(q.id)}" rows="4" placeholder="Collez ici la réponse de Claude">${ech(q.reponse || "")}</textarea>` : `<details><summary>${q.etat === "erreur" ? "Erreur : " + ech(messageErreur(q.erreur, q.detail)) : "Réponse"}</summary><div class="q-reponse">${mdBloc(q.reponse || "")}</div>${q.usage ? `<p class="resume">${ech(formaterCout(q.usage))}</p>` : ""}</details>`}</li>`).join("")}</ul>` : "<p class='vide'>Aucune question pour l'instant.</p>"}</details>`;
+  return `<details id="q-historique"><summary>Historique — ${n} question${n > 1 ? "s" : ""}</summary>${n ? `<ul class="historique">${qs.map((q) => `<li class="hist"><div class="hist-tete"><span class="resume">${heure(q.le)}</span><span class="actions-mini"><button type="button" class="lien" data-reprendre="${ech(q.id)}">Reprendre</button><button type="button" class="lien" data-supprimer-q="${ech(q.id)}">Supprimer</button></span></div><p class="q-question">${ech(q.question)}</p>
+${q.reponse ? `<details><summary>Réponse de Claude</summary><div class="q-reponse">${mdBloc(q.reponse)}</div></details>` : `<textarea data-coller="${ech(q.id)}" rows="4" placeholder="Colle ici la réponse de Claude"></textarea>`}</li>`).join("")}</ul>` : "<p class='vide'>Aucune question pour l'instant.</p>"}</details>`;
 }
 export function rendreQuestions(etat, d) {
   const ui = etat.ui || {};
   return `<section id="q-zone"><h2>Question à Claude</h2>
 <div class="filtres">${SUGGESTIONS.map((s, i) => `<button type="button" data-sugg="${i}">${ech(s.titre)}</button>`).join("")}</div>
 <textarea id="q-texte" rows="3" placeholder="Votre question sur ces documents…">${ech(ui.brouillonQuestion || "")}</textarea>
-<div class="actions"><button type="button" class="btn" id="q-poser" ${ui.enCours ? "disabled" : ""}>${ico(etat.reglages.cle_api ? "com" : "partage")} ${libellePoser(etat)}</button><button type="button" class="btn sec" id="q-arreter" ${ui.enCours ? "" : "hidden"}>Arrêter</button></div>
-<p id="q-etat" class="resume" aria-live="polite">${etat.reglages.cle_api ? "" : "Sans clé API (Réglages), la question et les documents sont partagés vers l'appli Claude."}</p>
-${rendreReponse(ui)}
+<div class="actions"><button type="button" class="btn" id="q-ouvrir">${ico("partage")} Ouvrir dans Claude</button></div>
+<p id="q-etat" class="resume" aria-live="polite">${ech(ui.messageQuestion || "La question et les documents s'ouvrent dans l'appli Claude (ton abonnement), qui consulte les données CEE grâce au connecteur « Appli CEE ».")}</p>
 ${rendreHistorique(d)}</section>`;
 }
 
@@ -62,41 +53,17 @@ export function monterQuestions(root, etat, actions, d, { rafraichir }) {
   const ui = etat.ui;
   const zone = () => root.querySelector("#q-texte");
   for (const b of root.querySelectorAll("[data-sugg]")) b.addEventListener("click", () => { zone().value = SUGGESTIONS[Number(b.dataset.sugg)].texte; zone().focus(); });
-  root.querySelector("#q-arreter").addEventListener("click", () => ui.controleur?.abort());
-  for (const b of root.querySelectorAll("[data-supprimer-q]")) b.addEventListener("click", async () => { d.questions = d.questions.filter((q) => q.id !== b.dataset.supprimerQ); if (ui.reponseCourante?.id === b.dataset.supprimerQ) ui.reponseCourante = null; await actions.enregistrerDossier(d); rafraichir(); });
+  for (const b of root.querySelectorAll("[data-supprimer-q]")) b.addEventListener("click", async () => { d.questions = d.questions.filter((q) => q.id !== b.dataset.supprimerQ); await actions.enregistrerDossier(d); rafraichir(); });
   for (const b of root.querySelectorAll("[data-reprendre]")) b.addEventListener("click", () => { const q = d.questions.find((x) => x.id === b.dataset.reprendre); if (q) { zone().value = q.question; zone().scrollIntoView({ block: "center" }); zone().focus(); } });
-  for (const t of root.querySelectorAll("[data-coller]")) t.addEventListener("change", async () => { const q = d.questions.find((x) => x.id === t.dataset.coller); if (!q) return; q.reponse = t.value.trim(); if (q.reponse) q.etat = "ok"; await actions.enregistrerDossier(d); });
-  root.querySelector("#q-poser").addEventListener("click", () => poser(root, etat, actions, d, rafraichir));
-}
-async function poser(root, etat, actions, d, rafraichir) {
-  const ui = etat.ui; const texte = root.querySelector("#q-texte").value.trim(); if (!texte || ui.enCours) return;
-  const q = nouvelleQuestion(texte); d.questions = d.questions || []; d.questions.push(q); ui.brouillonQuestion = "";
-  const f = etat.index[d.fiche];
-  if (!etat.reglages.cle_api) {   // sans cle : partage vers l'appli Claude, reponse a coller dans l'historique
+  for (const t of root.querySelectorAll("[data-coller]")) t.addEventListener("change", async () => { const q = d.questions.find((x) => x.id === t.dataset.coller); if (!q || !t.value.trim()) return; q.reponse = t.value.trim(); q.etat = "ok"; ui.brouillonQuestion = zone().value; await actions.enregistrerDossier(d); rafraichir(); });
+  root.querySelector("#q-ouvrir").addEventListener("click", async () => {
+    const texte = zone().value.trim(); if (!texte) { zone().focus(); return; }
     const { partager } = await import("../partage.js");
-    const objets = await objetsDuDossier(actions.stockage, d);
-    const r = await partager({ titre: d.titre || "Question CEE", texte: (f ? `Fiche CEE ${f.code} — ${f.titre}\n\n` : "") + texte + (d.devis_texte && !objets.length ? "\n\nTexte du document :\n" + d.devis_texte.slice(0, 12000) : ""), fichiers: objets });
-    if (r === "annule" || r === "echec") { d.questions.pop(); ui.reponseCourante = { ...q, etat: "erreur", erreur: r === "annule" ? "arret" : "reseau" }; rafraichir(); return; }
-    q.etat = "partage"; ui.reponseCourante = q; await actions.enregistrerDossier(d); rafraichir(); return;
-  }
-  ui.enCours = true; ui.reponseCourante = q; rafraichir();
-  const zoneRep = () => root.querySelector(".q-courante .q-reponse");
-  try {
-    const { fichiers, manquants } = await chargerPourRequete(actions.stockage, d.fichiers || []);
-    const refus = verifierTaille(fichiers); if (refus) throw Object.assign(new Error(refus), { code: refus });
-    let texteOfficiel = ""; if (f) { try { texteOfficiel = (await actions.chargerTexte(f.secteur))[f.code] || ""; } catch { /* hors ligne : sans extraits */ } }
-    const requete = construireRequete({ fichiers, texteExtrait: d.devis_texte || "", questions: d.questions.filter((x) => x.id !== q.id), question: texte, fiche: f, texteOfficiel, avis: etat.donnees?.avis?.fiches?.[f?.code] });
-    if (manquants.length || requete.ignores.length) root.querySelector("#q-etat").textContent = "Non envoyés : " + [...manquants, ...requete.ignores].join(", ");
-    const { demander } = await import("../claude.js");
-    ui.controleur = new AbortController();
-    let minuterie = null;
-    const r = await demander({ cle: etat.reglages.cle_api, requete, signal: ui.controleur.signal, surTexte: (t) => { q.reponse += t; if (!minuterie) minuterie = setTimeout(() => { minuterie = null; const z = zoneRep(); if (z) z.innerHTML = mdBloc(q.reponse); }, 150); } });
-    q.reponse = r.texte || q.reponse; q.usage = r.usage; q.modele = r.modele; q.stop = r.stop;
-    q.etat = r.stop === "refusal" ? "erreur" : "ok"; if (r.stop === "refusal") q.erreur = "refus";
-  } catch (e) {
-    const { classerErreur, detailErreur } = await import("../claude.js");
-    q.etat = "erreur"; q.erreur = e.code || classerErreur(e); q.detail = q.erreur === "requete" || q.erreur === "inconnue" ? detailErreur(e) : "";
-  }
-  ui.enCours = false; ui.controleur = null; ui.reponseCourante = q;
-  await actions.enregistrerDossier(d); rafraichir();
+    const fichiers = await objetsDuDossier(actions.stockage, d);
+    const r = await partager({ titre: d.titre || "Question CEE", texte: texteAPartager({ question: texte, fiche: etat.index[d.fiche], fichiers: fichiers.map((f) => ({ nom: f.name })), texteExtrait: d.devis_texte || "" }), fichiers });
+    ui.messageQuestion = MESSAGES_PARTAGE[r];
+    if (r === "partage" || r === "copie") { d.questions = d.questions || []; d.questions.push(nouvelleQuestion(texte)); ui.brouillonQuestion = ""; await actions.enregistrerDossier(d); }
+    else ui.brouillonQuestion = texte;
+    rafraichir();
+  });
 }

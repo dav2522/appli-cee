@@ -6,10 +6,10 @@ export const FICHIERS_PRINCIPAUX = ["fiches.json", "jour.json", "fil.json", "con
 export const SECTEURS = ["BAR", "BAT", "IND", "AGRI", "TRA", "RES"];
 
 export function lireReglages() {
-  return { jeton: localStorage.getItem("jeton") || "", theme: localStorage.getItem("theme") || "auto", cle_api: localStorage.getItem("cle_api") || "" };
+  return { jeton: localStorage.getItem("jeton") || "", theme: localStorage.getItem("theme") || "auto" };
 }
 export function ecrireReglages(r) {
-  localStorage.setItem("jeton", r.jeton || ""); localStorage.setItem("theme", r.theme || "auto"); localStorage.setItem("cle_api", r.cle_api || "");
+  localStorage.setItem("jeton", r.jeton || ""); localStorage.setItem("theme", r.theme || "auto");
 }
 function b64utf8(s) { return btoa(unescape(encodeURIComponent(s))); }
 

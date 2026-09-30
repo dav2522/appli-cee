@@ -2,7 +2,6 @@
 import { ech, dateFr, ico } from "../format.js";
 import { VERSION_APPLI } from "../app.js";
 import { estimation } from "../stockage.js";
-import { messageErreur } from "../questions.js";
 export const titre = () => "Réglages";
 export function rendre(etat) {
   const m = etat.donnees?.meta;
@@ -15,11 +14,8 @@ export function rendre(etat) {
   <p id="r-resultat" class="resume" aria-live="polite"></p>
 </section>
 <section class="carte">
-  <h2 style="margin-top:0">Clé API Anthropic</h2>
-  <p class="resume">Pour poser des questions à Claude sur les documents d'un dossier (facturée à l'usage sur votre compte Anthropic, voir INSTALLATION.md). Elle reste sur ce téléphone.</p>
-  <label class="champ"><span>Clé</span><input id="r-cle" type="password" autocomplete="off" value="${ech(etat.reglages.cle_api || "")}" placeholder="sk-ant-…"></label>
-  <div class="actions"><button type="button" class="btn" id="r-cle-enregistrer">${ico("ok")} Enregistrer</button><button type="button" class="btn sec" id="r-cle-tester">Tester la clé</button></div>
-  <p id="r-cle-resultat" class="resume" aria-live="polite"></p>
+  <h2 style="margin-top:0">Discuter avec Claude</h2>
+  <p class="resume">Dans un dossier, « Ouvrir dans Claude » envoie la question et les documents à l'appli Claude (ton abonnement, sans coût en plus). Claude y consulte les fiches, textes officiels et l'actualité CEE grâce au connecteur « Appli CEE », à ajouter une fois sur claude.ai → Connecteurs (voir INSTALLATION.md).</p>
 </section>
 <section class="carte">
   <h2 style="margin-top:0">Données</h2>
@@ -53,18 +49,6 @@ export function monter(root, etat, actions) {
     const r = await actions.enregistrerJeton(root.querySelector("#r-jeton").value);
     const msg = !r ? "Jeton vide." : r.ok ? "Connecté : " + r.telecharges + " fichier(s) téléchargé(s)." : "Échec : " + (r.erreur === "jeton" ? "jeton refusé" : r.erreur);
     const z = document.querySelector("#r-resultat"); if (z) z.textContent = msg;
-  });
-  root.querySelector("#r-cle-enregistrer").addEventListener("click", () => {
-    const cle = actions.enregistrerCle(root.querySelector("#r-cle").value);
-    root.querySelector("#r-cle-resultat").textContent = cle ? "Clé enregistrée sur ce téléphone." : "Clé effacée : les questions passeront par le partage vers l'appli Claude.";
-  });
-  root.querySelector("#r-cle-tester").addEventListener("click", async () => {
-    const res = root.querySelector("#r-cle-resultat"); const cle = root.querySelector("#r-cle").value.trim();
-    if (!cle) { res.textContent = "Saisissez une clé d'abord."; return; }
-    res.textContent = "Test en cours…";
-    const { testerCle } = await import("../claude.js");
-    const r = await testerCle(cle);
-    const z = document.querySelector("#r-cle-resultat"); if (z) z.textContent = r.ok ? "Clé valide (" + r.modele + ")." : "Échec : " + messageErreur(r.code, r.detail);
   });
   root.querySelector("#r-synchro").addEventListener("click", () => actions.synchroniser(true));
   root.querySelector("#r-vider").addEventListener("click", () => { if (confirm("Vider les données en cache ? Elles seront retéléchargées.")) actions.viderCache(); });

@@ -1,7 +1,7 @@
 // sw.js — coquille en cache, donnees jamais en cache (API avec jeton), reception des partages
 const CACHE = "appli-cee-v2";
 const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest", "./js/app.js", "./js/routeur.js",
-  "./js/questions.js", "./js/claude.js", "./js/images.js", "./js/fichiers.js", "./js/visionneuse.js", "./js/vues/dossier-questions.js",
+  "./js/questions.js", "./js/images.js", "./js/fichiers.js", "./js/visionneuse.js", "./js/vues/dossier-questions.js",
   "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js",
   "./js/partage.js", "./js/vues/aujourdhui.js", "./js/vues/fiches.js", "./js/vues/fiche.js", "./js/vues/echeances.js",
   "./js/vues/dossiers.js", "./js/vues/reglages.js", "./vendor/pdf.min.mjs", "./vendor/pdf.worker.min.mjs",
