@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0F172A">
+<title>Appli CEE</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="entete">
+  <button type="button" class="b-retour" id="b-retour" hidden aria-label="Retour"><svg class="ico" aria-hidden="true"><use href="#i-retour"/></svg></button>
+  <h1 id="titre-vue">Appli CEE</h1>
+  <button type="button" class="b-synchro" id="b-synchro" aria-label="Mettre à jour les données"><svg class="ico" aria-hidden="true"><use href="#i-sync"/></svg></button>
+</header>
+<div id="bandeau" class="bandeau" hidden aria-live="polite"></div>
+<main id="vue" tabindex="-1"><p class="vide">Chargement…</p></main>
+<nav class="onglets" aria-label="Navigation principale">
+  <a href="#/aujourdhui" data-vue="aujourdhui"><svg class="ico" aria-hidden="true"><use href="#i-jour"/></svg><span>Aujourd'hui</span></a>
+  <a href="#/fiches" data-vue="fiches"><svg class="ico" aria-hidden="true"><use href="#i-fiches"/></svg><span>Fiches</span></a>
+  <a href="#/echeances" data-vue="echeances"><svg class="ico" aria-hidden="true"><use href="#i-echeances"/></svg><span>Échéances</span></a>
+  <a href="#/dossiers" data-vue="dossiers"><svg class="ico" aria-hidden="true"><use href="#i-dossier"/></svg><span>Dossiers</span></a>
+  <a href="#/reglages" data-vue="reglages"><svg class="ico" aria-hidden="true"><use href="#i-reglages"/></svg><span>Réglages</span></a>
+</nav>
+<svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-jour" viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-fiches" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-echeances" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-dossier" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-reglages" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" stroke="currentColor" stroke-width="1.6" fill="none"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 11v10H4V11zM9 21h8.5a2 2 0 0 0 2-1.6l1.3-7A2 2 0 0 0 18.8 10H14l.8-3.9A1.7 1.7 0 0 0 12 4.6L9 11z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M17 13V3h3v10zM15 3H6.5a2 2 0 0 0-2 1.6l-1.3 7A2 2 0 0 0 5.2 14H10l-.8 3.9A1.7 1.7 0 0 0 12 19.4L15 13z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-com" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.2 5M4 12a8 8 0 0 1 14.2-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-partage" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M5 13v6h14v-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-alerte" viewBox="0 0 24 24"><path d="M12 3 2 21h20z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sablier" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M8 3v4l4 5 4-5V3M8 21v-4l4-5 4 5v4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-loupe" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-fichier" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M14 3v4h4" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-retour" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cible" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-foule" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="16" cy="9" r="2.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M2.5 19a5.5 5.5 0 0 1 11 0M13.5 19a4.5 4.5 0 0 1 8 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+</svg>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
