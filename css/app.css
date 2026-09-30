@@ -67,3 +67,15 @@ ul.f-cond{margin:4px 0;padding-left:18px}
 main > *,main section > *,.carte{scroll-margin-top:calc(64px + env(safe-area-inset-top))}
 .filtres,.recherche + .filtres{scroll-margin-top:calc(130px + env(safe-area-inset-top))}
 [hidden]{display:none!important}
+/* Documents & questions (dossier) */
+.docs{list-style:none;margin:var(--sm) 0;padding:0}.docs li{display:flex;align-items:center;gap:var(--xs)}
+.doc{flex:1;display:flex;align-items:center;gap:var(--sm);min-height:44px;padding:var(--xs) var(--sm);border:1px solid var(--bord);border-radius:var(--r-sm);background:var(--fond-2);color:var(--texte);text-align:left}
+.doc[aria-pressed=true]{border-color:var(--action-clair);background:var(--fond-3)}.doc span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc small{color:var(--texte-2)}
+.docs .x{width:44px;height:44px;border:0;background:transparent;color:var(--texte-2)}
+.visionneuse{margin:var(--sm) 0;border:1px solid var(--bord);border-radius:var(--r-sm);background:var(--fond-2);overflow:hidden}
+.visionneuse canvas,.visionneuse img{display:block;width:100%;height:auto;background:#fff}
+.visionneuse .barre{display:flex;align-items:center;justify-content:space-between;gap:var(--sm);padding:var(--xs) var(--sm);font-size:14px}
+.visionneuse .barre button{min-width:44px;min-height:40px;border:1px solid var(--bord);border-radius:var(--r-sm);background:var(--fond-3);color:var(--texte)}
+.q-courante{margin:var(--md) 0}.q-question{font-weight:600;margin:var(--sm) 0}.q-reponse{overflow-wrap:anywhere}.q-reponse p{margin:var(--sm) 0}.q-reponse h3,.q-reponse h4{margin:var(--md) 0 var(--xs)}.q-reponse code{background:var(--fond-3);padding:0 4px;border-radius:4px}
+.historique{list-style:none;margin:0;padding:0}.hist{border-top:1px solid var(--bord);padding:var(--sm) 0}.hist-tete{display:flex;justify-content:space-between;gap:var(--sm)}.hist.erreur .q-question{color:var(--texte-2)}
+.actions-mini{display:flex;gap:var(--md)}.lien{border:0;background:none;color:var(--action-clair);padding:0;min-height:28px}
