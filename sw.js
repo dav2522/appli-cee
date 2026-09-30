@@ -5,7 +5,7 @@ const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest
   "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js",
   "./js/partage.js", "./js/vues/aujourdhui.js", "./js/vues/fiches.js", "./js/vues/fiche.js", "./js/vues/echeances.js",
   "./js/vues/dossiers.js", "./js/vues/reglages.js", "./vendor/pdf.min.mjs", "./vendor/pdf.worker.min.mjs",
-  "./icons/icon-192.png", "./icons/icon-512.png"];
+  "./icons/logo-192.png", "./icons/logo-512.png", "./icons/logo-maskable-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(COQUILLE.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });
