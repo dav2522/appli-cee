@@ -66,3 +66,4 @@ ul.f-cond{margin:4px 0;padding-left:18px}
 /* Barres collantes (entete, recherche) : laisser la place quand un element est amene en vue (defilement, focus, ancre) */
 main > *,main section > *,.carte{scroll-margin-top:calc(64px + env(safe-area-inset-top))}
 .filtres,.recherche + .filtres{scroll-margin-top:calc(130px + env(safe-area-inset-top))}
+[hidden]{display:none!important}
