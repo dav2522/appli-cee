@@ -1,5 +1,6 @@
 // js/stockage.js — IndexedDB (memes stores que sw.js)
-const NOM = "appli-cee", VERSION = 1, STORES = ["donnees", "dossiers", "file", "partages"];
+// v2 : store "fichiers" (blobs des documents d'un dossier, cle "<dossier>/<id>")
+const NOM = "appli-cee", VERSION = 2, STORES = ["donnees", "dossiers", "file", "partages", "fichiers"];
 let dbPromesse;
 export function ouvrir() {
   if (!dbPromesse) dbPromesse = new Promise((ok, ko) => {
@@ -19,6 +20,7 @@ export const lire = (store, cle) => requete(store, "readonly", (s) => s.get(cle)
 export const ecrire = (store, cle, val) => requete(store, "readwrite", (s) => s.put(val, cle));
 export const supprimer = (store, cle) => requete(store, "readwrite", (s) => s.delete(cle));
 export const vider = (store) => requete(store, "readwrite", (s) => s.clear());
+export const cles = (store, prefixe) => requete(store, "readonly", (s) => s.getAllKeys(IDBKeyRange.bound(prefixe, prefixe + "￿"))).then((v) => v || []);
 export async function tout(store) {
   const db = await ouvrir();
   return new Promise((ok, ko) => {
