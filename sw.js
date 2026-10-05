@@ -1,11 +1,11 @@
 // sw.js — coquille en cache, API jamais en cache (session), reception des partages (documents -> expertise, lien YouTube -> Vidéos)
-const CACHE = "appli-cee-v4";
+const CACHE = "appli-cee-v5";
 const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest", "./js/app.js", "./js/routeur.js",
   "./js/questions.js", "./js/images.js", "./js/fichiers.js", "./js/visionneuse.js", "./js/vues/dossier-questions.js",
   "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js", "./js/webauthn.js", "./js/videos.js", "./js/projets.js",
   "./js/partage.js", "./js/vues/aujourdhui.js", "./js/vues/fiches.js", "./js/vues/fiche.js", "./js/vues/echeances.js",
   "./js/vues/dossiers.js", "./js/vues/reglages.js", "./js/vues/accueil.js", "./js/vues/videos.js", "./js/vues/projets.js", "./js/vues/connexion.js", "./vendor/pdf.min.mjs", "./vendor/pdf.worker.min.mjs",
-  "./icons/logo-192.png", "./icons/logo-512.png", "./icons/logo-maskable-512.png"];
+  "./icons/etoile-192.png", "./icons/etoile-512.png", "./icons/etoile-maskable-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(COQUILLE.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });

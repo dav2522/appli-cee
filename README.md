@@ -11,7 +11,7 @@ Les questions s'ouvrent dans l'appli Claude (abonnement), qui consulte les donn�
   `docs/superpowers/specs/2026-09-30-dossier-questions-design.md` (documents et questions) ; plans dans `docs/superpowers/plans/`
 - Données : dépôt privé `dav2522/appli-cee-donnees` (export `scraper.py --export-app`, publication `--publier-app`)
 - Tests : `python3 -m nodejs --test tests/` (unitaires) ; parcours complet avec le serveur : `tests/e2e/parcours.py` du dépôt `appli-cee-serveur`
-- Dépendance vendue : pdf.js (`vendor/pdf*.mjs`) ; icônes générées depuis `tools/logo-cee.png` par `tools/icones.py`
+- Dépendance vendue : pdf.js (`vendor/pdf*.mjs`) ; logo (étoile multicolore, une branche par activité) et icônes générés par `tools/logo.py`
 
 Modules : `js/questions.js` (texte partagé vers l'appli Claude, raccourcis),
 `js/fichiers.js` (documents dans IndexedDB), `js/images.js` (réduction des photos), `js/visionneuse.js` (PDF/image),
