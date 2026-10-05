@@ -33,7 +33,7 @@ L'icône **CEE** apparaît. L'appli s'ouvre en plein écran, sans barre d'adress
 
 Un appui long sur l'icône donne deux raccourcis : **Résumer une vidéo** et **Nouvelle expertise CEE**.
 
-**L'ancienne appli** (adresse dav2522.github.io) porte le même nom. Une fois la nouvelle validée, désinstalle-la (appui long → Désinstaller) pour ne pas les confondre.
+**L'ancienne appli (V1)** est archivée depuis le 05/10/2026 : son adresse (dav2522.github.io/appli-cee) renvoie vers la nouvelle et efface l'ancien jeton et le cache du téléphone.
 
 ## 4. Ce que tu trouves dans l'appli
 
@@ -74,7 +74,7 @@ Un appui long sur l'icône donne deux raccourcis : **Résumer une vidéo** et **
 ## Côté serveur (pour mémoire)
 
 - **Code :** `/docker/appli/serveur` (dépôt privé `appli-cee-serveur`).
-- **Interface :** `/docker/appli/interface` (dépôt `appli-cee`, branche `socle-b`). Mise à jour : `git -C /docker/appli/interface pull`.
+- **Interface :** `/docker/appli/interface` (dépôt `appli-cee`, branche `main`). Mise à jour : `git -C /docker/appli/interface pull`.
 - **Base :** `/docker/appli/donnees/appli.db`, sauvegardée chaque nuit à 02:30 UTC dans Drive › IA › Appli CEE › Sauvegardes (30 jours).
 - **Avis 👍/👎 :** recopiés toutes les 15 min dans le dépôt de données, pour la veille.
 - **Clé Gemini :** `/etc/appli-cee-serveur.env` (mode 600).
