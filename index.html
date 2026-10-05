@@ -1,0 +1,14 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Appli déplacée</title>
+<meta http-equiv="refresh" content="3;url=https://appli.srv1911219.hstgr.cloud/">
+<style>body{font:17px/1.5 system-ui,sans-serif;background:#0F172A;color:#F1F5F9;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center}a{color:#38BDF8}</style></head>
+<body><main><h1>L'appli a déménagé</h1><p>Cette ancienne version (V1) est archivée. La nouvelle appli est ici :</p>
+<p><a href="https://appli.srv1911219.hstgr.cloud/">https://appli.srv1911219.hstgr.cloud</a></p></main>
+<script>
+// Ménage de la V1 sur cet appareil : jeton GitHub, données en cache, service worker
+try { localStorage.removeItem("jeton"); } catch (e) {}
+try { indexedDB.deleteDatabase("appli-cee"); } catch (e) {}
+if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
+if ("caches" in window) caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
+setTimeout(() => location.replace("https://appli.srv1911219.hstgr.cloud/"), 1500);
+</script></body></html>
