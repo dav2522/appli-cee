@@ -79,3 +79,33 @@ main > *,main section > *,.carte{scroll-margin-top:calc(64px + env(safe-area-ins
 .q-question{font-weight:600;margin:var(--sm) 0}.q-reponse{overflow-wrap:anywhere}.q-reponse p{margin:var(--sm) 0}.q-reponse h3,.q-reponse h4{margin:var(--md) 0 var(--xs)}.q-reponse code{background:var(--fond-3);padding:0 4px;border-radius:4px}
 .historique{list-style:none;margin:0;padding:0}.hist{border-top:1px solid var(--bord);padding:var(--sm) 0}.hist-tete{display:flex;justify-content:space-between;gap:var(--sm)}.hist.erreur .q-question{color:var(--texte-2)}
 .actions-mini{display:flex;gap:var(--md)}.lien{border:0;background:none;color:var(--action-clair);padding:0;min-height:28px}
+/* ---- Socle B : sous-barre Solhy, connexion, vidéos, projets ---- */
+.sous-onglets{position:sticky;top:calc(60px + env(safe-area-inset-top));z-index:4;display:flex;gap:6px;overflow-x:auto;padding:var(--sm) var(--md);background:var(--fond);border-bottom:1px solid var(--bord);scrollbar-width:none}
+.sous-onglets::-webkit-scrollbar{display:none}
+.sous-onglets a{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;border:1px solid var(--bord);background:var(--fond-2);color:var(--texte);text-decoration:none;font-size:14px}
+.sous-onglets a[aria-current="page"]{background:var(--action);border-color:var(--action);color:#fff}
+.connexion{max-width:480px;margin:var(--xl) auto}.connexion .btn{width:100%}
+.code-secours{font:600 20px/1.4 ui-monospace,monospace;letter-spacing:.06em;user-select:all;margin:var(--sm) 0}
+.liste.videos li[aria-current="true"] .carte-lien{border-left:3px solid var(--action-clair);padding-left:var(--sm)}
+.fiche-video{display:block;width:100%;min-height:70vh;border:1px solid var(--bord);border-radius:var(--r);background:#fff}
+.deux-volets.avec-detail .volet-liste{display:none}
+.tableau{display:grid;gap:var(--md)}.colonne h2{margin-top:var(--md)}
+.projet b{color:var(--texte)}.projet details{margin-top:var(--sm)}
+.checklist{list-style:none;margin:var(--sm) 0;padding:0}.checklist li{margin:4px 0}.checklist label{display:flex;gap:var(--sm);align-items:center;min-height:36px}
+.checklist input{width:20px;height:20px;min-height:0}
+.nouveau-projet{display:flex;gap:var(--sm);align-items:flex-end}.nouveau-projet .champ{flex:1;margin:0}
+/* ---- Grand écran (Galaxy Z Fold 7 déplié, tablette) : rail de navigation à gauche, deux volets ---- */
+@media (min-width:600px){
+  body{padding-bottom:0;padding-left:88px}
+  .onglets{top:0;bottom:0;right:auto;width:88px;height:auto;flex-direction:column;justify-content:flex-start;padding:calc(72px + env(safe-area-inset-top)) 0 0;border-top:0;border-right:1px solid var(--bord)}
+  .onglets a{flex:none;height:72px;font-size:12px}
+  main{max-width:1200px}
+  .tableau{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:840px){
+  .deux-volets{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:var(--lg);align-items:start}
+  .deux-volets.avec-detail .volet-liste{display:block}
+  .volet-liste{position:sticky;top:calc(72px + env(safe-area-inset-top));max-height:calc(100vh - 96px);overflow:auto}
+  .tableau{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:839px){.deux-volets:not(.avec-detail) .volet-detail{display:none}}

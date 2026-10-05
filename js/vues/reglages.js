@@ -7,11 +7,12 @@ export function rendre(etat) {
   const m = etat.donnees?.meta;
   return `
 <section class="carte">
-  <h2 style="margin-top:0">Jeton GitHub</h2>
-  <p class="resume">Jeton « fine-grained » limité au dépôt privé des données (voir INSTALLATION.md). Il reste sur ce téléphone.</p>
-  <label class="champ"><span>Jeton</span><input id="r-jeton" type="password" autocomplete="off" value="${ech(etat.reglages.jeton)}" placeholder="github_pat_…"></label>
-  <div class="actions"><button type="button" class="btn" id="r-enregistrer">${ico("ok")} Enregistrer et synchroniser</button></div>
-  <p id="r-resultat" class="resume" aria-live="polite"></p>
+  <h2 style="margin-top:0">Connexion</h2>
+  <p class="resume">${etat.session?.connecte ? "Connecté avec ta clé d'accès (empreinte). La session dure 30 jours et se prolonge à chaque utilisation." : etat.session ? "Non connecté." : "Serveur injoignable : données en cache."}</p>
+  <div class="actions">
+    <a class="btn sec" href="#/connexion?ajout=1">${ico("cle")} Ajouter un appareil</a>
+    <button type="button" class="btn sec" id="r-deconnexion">Se déconnecter</button>
+  </div>
 </section>
 <section class="carte">
   <h2 style="margin-top:0">Discuter avec Claude</h2>
@@ -20,7 +21,7 @@ export function rendre(etat) {
 <section class="carte">
   <h2 style="margin-top:0">Données</h2>
   <dl class="infos">
-    <dt>Données du PC</dt><dd>${m ? dateFr(m.donnees_du) + " (export du " + ech((m.genere_le || "").replace("T", " à ").slice(0, 19)) + ")" : "aucune"}</dd>
+    <dt>Données de la veille</dt><dd>${m ? dateFr(m.donnees_du) + " (export du " + ech((m.genere_le || "").replace("T", " à ").slice(0, 19)) + ")" : "aucune"}</dd>
     <dt>Dernière synchronisation</dt><dd>${etat.synchro.derniere ? ech(etat.synchro.derniere.replace("T", " ").slice(0, 16)) : "jamais"}</dd>
     <dt>Fiches en cache</dt><dd>${etat.donnees?.fiches?.fiches?.length || 0}</dd>
     <dt>Espace utilisé</dt><dd id="r-espace">…</dd>
@@ -31,9 +32,9 @@ export function rendre(etat) {
   </div>
 </section>
 <section class="carte">
-  <h2 style="margin-top:0">Dossiers</h2>
+  <h2 style="margin-top:0">Expertise CEE</h2>
   <div class="actions">
-    <button type="button" class="btn sec" id="r-export">${ico("partage")} Exporter les dossiers (JSON)</button>
+    <button type="button" class="btn sec" id="r-export">${ico("partage")} Exporter les expertises (JSON)</button>
     <label class="btn sec" for="r-import">${ico("fichier")} Importer un export</label><input id="r-import" type="file" accept="application/json" class="sr">
   </div>
 </section>
@@ -44,12 +45,7 @@ export function rendre(etat) {
 }
 export function monter(root, etat, actions) {
   estimation().then((e) => { const z = root.querySelector("#r-espace"); if (z) z.textContent = (e.usage / 1048576).toFixed(1) + " Mo"; });
-  root.querySelector("#r-enregistrer").addEventListener("click", async () => {
-    const res = root.querySelector("#r-resultat"); res.textContent = "Connexion…";
-    const r = await actions.enregistrerJeton(root.querySelector("#r-jeton").value);
-    const msg = !r ? "Jeton vide." : r.ok ? "Connecté : " + r.telecharges + " fichier(s) téléchargé(s)." : "Échec : " + (r.erreur === "jeton" ? "jeton refusé" : r.erreur);
-    const z = document.querySelector("#r-resultat"); if (z) z.textContent = msg;
-  });
+  root.querySelector("#r-deconnexion").addEventListener("click", () => actions.deconnexion());
   root.querySelector("#r-synchro").addEventListener("click", () => actions.synchroniser(true));
   root.querySelector("#r-vider").addEventListener("click", () => { if (confirm("Vider les données en cache ? Elles seront retéléchargées.")) actions.viderCache(); });
   root.querySelector("#r-export").addEventListener("click", () => {

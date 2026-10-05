@@ -1,11 +1,12 @@
 # Tests de rendu
 
-`python3 tests/rendu/test_rendu.py [--donnees DOSSIER]` : sert le dépôt sur le port 8766, intercepte l'API GitHub
-avec les fichiers de `DOSSIER` (défaut `/home/appli-cee-donnees/app`) et `api.anthropic.com` (test de clé, puis
-`/v1/messages` répondu par un flux SSE simulé, le corps de la requête étant vérifié : blocs `document` PDF + `image`,
-`cache_control`, fiche dans le système), joue le scénario (réglages, cinq écrans en sombre et en clair, avis,
-recherche, dossier depuis `devis_test.pdf`, photo `photo_test.png` générée à la volée, visionneuse PDF, question
-à Claude et historique persistant après rechargement, suppression du dossier avec ses fichiers, mode hors ligne)
-et écrit les captures dans `captures/`. Sort en erreur (`ECHEC : …`) si une vérification échoue. `devis_test.py`
-régénère le PDF de test. Aucune clé réelle n'est utilisée.
-Tests unitaires : `python3 -m nodejs --test tests/` (Node 18 via nodejs-bin) ou `npm test`.
+Depuis le socle B (05/10/2026), l'appli est servie par son serveur : le test d'affichage complet vit dans le dépôt
+`dav2522/appli-cee-serveur`, `tests/e2e/parcours.py`. Il couvre, avec le vrai serveur et Chromium :
+- connexion par clé d'accès virtuelle (inscription avec code, code de secours, reconnexion par empreinte) ;
+- Accueil, Solhy (Veille, Fiches, Échéances, Expertise CEE), avis recopiés pour la veille ;
+- Expertise CEE : import de `devis_test.pdf` (suggestion BAT-TH-163, puissance 160 kW), dossier d'expertise, visionneuse, partage vers Claude ;
+- Vidéos (lien refusé, « déjà résumée », fiche dans son cadre), Projets en cours ;
+- partage Android (lien YouTube → Vidéos, document → Expertise), lecture hors ligne ;
+- mises en page plié (390 px) et déplié (884 px), repli sans rechargement, aucune violation de la politique de sécurité.
+
+`devis_test.pdf` (généré par `devis_test.py`) reste ici : le parcours l'utilise.

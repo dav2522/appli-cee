@@ -1,10 +1,10 @@
-// sw.js — coquille en cache, donnees jamais en cache (API avec jeton), reception des partages
-const CACHE = "appli-cee-v2";
+// sw.js — coquille en cache, API jamais en cache (session), reception des partages (documents -> expertise, lien YouTube -> Vidéos)
+const CACHE = "appli-cee-v3";
 const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest", "./js/app.js", "./js/routeur.js",
   "./js/questions.js", "./js/images.js", "./js/fichiers.js", "./js/visionneuse.js", "./js/vues/dossier-questions.js",
-  "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js",
+  "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js", "./js/webauthn.js", "./js/videos.js", "./js/projets.js",
   "./js/partage.js", "./js/vues/aujourdhui.js", "./js/vues/fiches.js", "./js/vues/fiche.js", "./js/vues/echeances.js",
-  "./js/vues/dossiers.js", "./js/vues/reglages.js", "./vendor/pdf.min.mjs", "./vendor/pdf.worker.min.mjs",
+  "./js/vues/dossiers.js", "./js/vues/reglages.js", "./js/vues/accueil.js", "./js/vues/videos.js", "./js/vues/projets.js", "./js/vues/connexion.js", "./vendor/pdf.min.mjs", "./vendor/pdf.worker.min.mjs",
   "./icons/logo-192.png", "./icons/logo-512.png", "./icons/logo-maskable-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(COQUILLE.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
@@ -20,6 +20,13 @@ function ouvrirDb() {
     r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
   });
 }
+// Lien YouTube partagé sans fichier (appli YouTube -> Partager) : on ouvre Vidéos avec le lien prérempli
+function lienYoutube(fd) {
+  for (const m of [fd.get("url") || "", fd.get("texte") || "", fd.get("titre") || ""].join(" ").matchAll(/https?:\/\/\S+/g)) {
+    try { const h = new URL(m[0]).hostname; if (h === "youtu.be" || /(^|\.)youtube\.com$/.test(h)) return m[0]; } catch { /* pas une URL */ }
+  }
+  return null;
+}
 async function stockerPartage(fd) {
   const fichiers = fd.getAll("fichiers").filter((f) => f && f.size);
   const partage = { titre: fd.get("titre") || "", texte: fd.get("texte") || "", url: fd.get("url") || "", fichiers, recu_le: new Date().toISOString() };
@@ -29,11 +36,17 @@ async function stockerPartage(fd) {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method === "POST" && url.pathname.endsWith("/partage")) {
-    e.respondWith((async () => { try { await stockerPartage(await e.request.formData()); } catch (err) { console.warn(err); }
+    e.respondWith((async () => {
+      try {
+        const fd = await e.request.formData();
+        const lien = fd.getAll("fichiers").some((f) => f && f.size) ? null : lienYoutube(fd);
+        if (lien) return Response.redirect("./#/videos?lien=" + encodeURIComponent(lien), 303);
+        await stockerPartage(fd);
+      } catch (err) { console.warn(err); }
       return Response.redirect("./#/dossier/nouveau?partage=1", 303); })());
     return;
   }
-  if (e.request.method !== "GET" || url.hostname === "api.github.com") return;
+  if (e.request.method !== "GET" || url.pathname.startsWith("/api/")) return;   // API : toujours le réseau (session)
   if (url.origin === location.origin || url.hostname.endsWith("gstatic.com") || url.hostname.endsWith("googleapis.com")) {
     // Cache d'abord (hors ligne, instantane), puis rafraichissement en arriere-plan : une nouvelle version de
     // l'appli est servie au chargement suivant, sans vider le cache ni changer le nom du cache.
@@ -42,7 +55,8 @@ self.addEventListener("fetch", (e) => {
       const reseau = fetch(e.request).then((rep) => { if (rep.ok) c.put(e.request, rep.clone()); return rep; }).catch(() => null);
       if (enCache) { e.waitUntil(reseau); return enCache; }
       const rep = await reseau;
-      return rep || (await c.match("./index.html")) || Response.error();
+      // Hors ligne : la page d'accueil de l'appli seulement pour une navigation (jamais à la place d'une feuille de style ou d'un script)
+      return rep || (e.request.mode === "navigate" ? await c.match("./index.html") : null) || Response.error();
     }));
   }
 });

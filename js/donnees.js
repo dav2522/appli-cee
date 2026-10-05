@@ -1,38 +1,33 @@
-// js/donnees.js — reglages, client GitHub (API contents), decision de synchro, file d'avis. Pur sauf fetch injecte.
+// js/donnees.js — reglages, client de l'API du serveur, decision de synchro, file d'avis. Pur sauf fetch injecte.
+// Depuis le socle B (05/10/2026) : les donnees viennent du serveur de l'appli (session par empreinte), plus de GitHub ni de jeton.
 export const SCHEMA_APPLI = 1;
-export const DEPOT = "dav2522/appli-cee-donnees";
-export const API = "https://api.github.com/repos/" + DEPOT + "/contents/";
+export const API = "/api/cee/";
 export const FICHIERS_PRINCIPAUX = ["fiches.json", "jour.json", "fil.json", "consultations.json", "registre.json", "jalons.json", "avis.json"];
 export const SECTEURS = ["BAR", "BAT", "IND", "AGRI", "TRA", "RES"];
 
 export function lireReglages() {
-  return { jeton: localStorage.getItem("jeton") || "", theme: localStorage.getItem("theme") || "auto" };
+  return { theme: localStorage.getItem("theme") || "auto" };
 }
 export function ecrireReglages(r) {
-  localStorage.setItem("jeton", r.jeton || ""); localStorage.setItem("theme", r.theme || "auto");
+  localStorage.setItem("theme", r.theme || "auto"); localStorage.removeItem("jeton");   // ancien jeton GitHub : effacé
 }
-function b64utf8(s) { return btoa(unescape(encodeURIComponent(s))); }
 
-export function creerClient(fetchImpl, jeton) {
-  const entetes = (brut) => ({ Authorization: "Bearer " + jeton, "X-GitHub-Api-Version": "2022-11-28",
-    Accept: brut ? "application/vnd.github.raw+json" : "application/vnd.github+json" });
-  async function lire(chemin, brut = true) {
-    const r = await fetchImpl(API + chemin + "?ref=main", { headers: entetes(brut) });
+// Memes chemins que l'ancien depot (app/…, avis/…), servis par le serveur avec le cookie de session.
+export function creerClient(fetchImpl, racine = API) {
+  async function lire(chemin) {
+    const r = await fetchImpl(racine + chemin, { credentials: "same-origin" });
     return { status: r.status, texte: await r.text() };
   }
   return {
-    lire: (chemin) => lire(chemin, true),
+    lire,
     async lireJson(chemin) {
-      const r = await lire(chemin, true);
+      const r = await lire(chemin);
       if (r.status === 404) return null;
       if (r.status !== 200) throw new Error("HTTP " + r.status);
       return JSON.parse(r.texte);
     },
-    async ecrire(chemin, texte, message) {
-      const corps = { message, content: b64utf8(texte) };
-      const ex = await lire(chemin, false);
-      if (ex.status === 200) { try { corps.sha = JSON.parse(ex.texte).sha; } catch { /* sans sha */ } }
-      const r = await fetchImpl(API + chemin, { method: "PUT", headers: { ...entetes(false), "Content-Type": "application/json" }, body: JSON.stringify(corps) });
+    async ecrire(chemin, texte) {
+      const r = await fetchImpl(racine + chemin, { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: texte });
       return r.status;
     },
   };
@@ -50,7 +45,7 @@ export async function synchroniser({ client, stockage, force = false, maintenant
   const locale = await stockage.lire("donnees", "meta");
   let r;
   try { r = await client.lire("app/meta.json"); } catch { return { ok: false, erreur: "reseau", meta: locale }; }
-  if (r.status === 401 || r.status === 403) return { ok: false, erreur: "jeton", meta: locale };
+  if (r.status === 401 || r.status === 403) return { ok: false, erreur: "connexion", meta: locale };
   if (r.status !== 200) return { ok: false, erreur: "http " + r.status, meta: locale };
   let distante;
   try { distante = JSON.parse(r.texte); } catch { return { ok: false, erreur: "meta illisible", meta: locale }; }
@@ -95,7 +90,7 @@ export async function viderFile({ stockage, client }) {
       const distant = await client.lireJson("avis/" + code + ".json");
       const gagnant = avisGagnant(val, distant);
       if (gagnant === val) {
-        const st = await client.ecrire("avis/" + code + ".json", JSON.stringify(val), "avis " + code + " (appli)");
+        const st = await client.ecrire("avis/" + code + ".json", JSON.stringify(val));
         if (st !== 200 && st !== 201) { restants++; continue; }
       } else {
         const local = (await stockage.lire("donnees", "avis")) || { schema: SCHEMA_APPLI, fiches: {} };

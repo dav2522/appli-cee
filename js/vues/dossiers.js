@@ -2,7 +2,7 @@
 import { ech, ico, dateFr } from "../format.js";
 import { suggererFiches, extraireParametres, construireDossier, nouveauDossier } from "../dossier.js";
 import { rendreDocuments, rendreQuestions, monterDocuments, monterQuestions, objetsDuDossier } from "./dossier-questions.js";
-export const titre = (etat, p) => (etat.route.vue === "dossier" ? (p.id === "nouveau" ? "Nouveau dossier" : "Dossier") : "Dossiers");
+export const titre = (etat, p) => (etat.route.vue === "dossier" ? (p.id === "nouveau" ? "Nouvelle expertise" : "Expertise CEE") : "Expertise CEE");
 const LIB = { puissance_kw: "Puissance (kW)", surface_m2: "Surface (m²)", etas: "Etas (%)", cop: "COP", scop: "SCOP", zone: "Zone (H1/H2/H3)", montant_ht: "Montant HT (€)", energie: "Énergie remplacée", secteur: "Secteur" };
 export function preparerDossier({ fiches, textes, texteExtrait, fichiers, fiche, parametres, avis }) {
   const suggestions = suggererFiches(texteExtrait, fiches);
@@ -13,9 +13,9 @@ export function preparerDossier({ fiches, textes, texteExtrait, fichiers, fiche,
 export function rendre(etat, p) {
   if (etat.route.vue === "dossiers") {
     const l = [...etat.dossiers].sort((a, b) => (b.maj_le || "").localeCompare(a.maj_le || ""));
-    return `<div class="actions"><a class="btn" href="#/dossier/nouveau">${ico("plus")} Nouveau dossier</a><label class="btn sec" for="d-fichier">${ico("fichier")} Depuis un fichier</label><input id="d-fichier" type="file" accept="application/pdf,image/*,text/plain" multiple class="sr"></div>
+    return `<div class="actions"><a class="btn" href="#/dossier/nouveau">${ico("plus")} Nouvelle expertise</a><label class="btn sec" for="d-fichier">${ico("fichier")} Depuis un fichier</label><input id="d-fichier" type="file" accept="application/pdf,image/*,text/plain" multiple class="sr"></div>
 <p class="resume">Ou partagez un PDF / une photo depuis Gmail, Drive, WhatsApp… vers « Appli CEE ».</p>
-${l.length ? `<ul class="liste">${l.map((d) => `<li><a class="carte-lien" href="#/dossier/${ech(d.id)}"><b>${ech(d.titre || d.fiche || "Sans titre")}</b> <span class="st ${d.etat === "reponse" ? "actif" : d.etat === "partage" ? "rev" : ""}">${ech({ brouillon: "brouillon", partage: "partagé", reponse: "réponse reçue" }[d.etat] || d.etat)}</span><br><span class="resume">${ech(d.fiche || "fiche à choisir")} · ${dateFr(d.maj_le)} · ${(d.fichiers || []).length} fichier(s) · ${(d.questions || []).length} question(s)</span></a></li>`).join("")}</ul>` : `<p class="vide">Aucun dossier.</p>`}`;
+${l.length ? `<ul class="liste">${l.map((d) => `<li><a class="carte-lien" href="#/dossier/${ech(d.id)}"><b>${ech(d.titre || d.fiche || "Sans titre")}</b> <span class="st ${d.etat === "reponse" ? "actif" : d.etat === "partage" ? "rev" : ""}">${ech({ brouillon: "brouillon", partage: "partagé", reponse: "réponse reçue" }[d.etat] || d.etat)}</span><br><span class="resume">${ech(d.fiche || "fiche à choisir")} · ${dateFr(d.maj_le)} · ${(d.fichiers || []).length} fichier(s) · ${(d.questions || []).length} question(s)</span></a></li>`).join("")}</ul>` : `<p class="vide">Aucune expertise pour l'instant.</p>`}`;
   }
   const d = etat.ui.dossier;
   if (!d || d.id !== p.id) return `<p class="vide">Chargement…</p>`;

@@ -1,26 +1,31 @@
 // js/vues/aujourdhui.js
 import { ech, ico, dateFr } from "../format.js";
 import { rubriquesDuJour, nettoyerTelegram } from "../jour.js";
-export const titre = () => "Aujourd'hui";
+export const titre = () => "Veille du jour";
 function lien(code) { return code ? `<a class="code" href="#/fiche/${ech(code)}">${ech(code)}</a> ` : ""; }
-export function rendre(etat) {
-  const d = etat.donnees;
-  if (!d) return `<p class="vide">Aucune donnée. ${etat.reglages.jeton ? "Synchronisation en cours…" : '<a href="#/reglages">Saisir le jeton</a>.'}</p>`;
-  const m = d.meta, p = m.passage || {}, c = m.compteurs || {};
-  const incidents = (p.incidents || []).length;
-  const etatPassage = p.date ? (p.dgec_code === 0 && p.ademe_code === 0 && !incidents ? ["ok", "Passage du " + dateFr(p.date) + " OK"] : ["warn", "Passage du " + dateFr(p.date) + " : " + (incidents ? incidents + " incident(s)" : "source en échec")]) : ["bad", "Pas de passage"];
+// Tuiles CEE : même calcul pour la Veille du jour et l'Accueil (pas de copie de code)
+export function tuilesCee(d) {
+  const c = d.meta.compteurs || {};
   const tuile = (cls, val, lbl, href) => `<a class="tuile ${cls}" href="${href}"><span class="val">${val}</span><span class="lbl">${lbl}</span></a>`;
-  const rubriques = rubriquesDuJour(d.jour?.delta);
   const avisUp = Object.values(d.avis?.fiches || {}).filter((a) => a.avis === "up").length;
-  const html = [`
-<p class="resume">Données du <b>${dateFr(m.donnees_du)}</b> · <span class="st ${etatPassage[0]}">${ech(etatPassage[1])}</span>${p.vpn_final ? " · VPN " + (p.vpn_final === "Disconnected" ? "éteint" : ech(p.vpn_final)) : ""}</p>
-<div class="tuiles">
+  return `<div class="tuiles">
   ${tuile("", c.actives ?? "—", "fiches actives", "#/fiches")}
   ${tuile(c.mouvements ? "warn" : "ok", c.mouvements ?? 0, "mouvement" + (c.mouvements > 1 ? "s" : ""), "#/aujourdhui")}
   ${tuile("", c.consultations_en_cours ?? 0, "consultations en cours", "#/echeances")}
   ${tuile(c.fins_90j ? "warn" : "", c.fins_90j ?? 0, "fins sous 90 j", "#/echeances")}
   ${tuile("", avisUp, "fiches 👍", "#/fiches?avis=up")}
-</div>`];
+</div>`;
+}
+export function rendre(etat) {
+  const d = etat.donnees;
+  if (!d) return `<p class="vide">Aucune donnée pour l'instant : synchronisation en cours…</p>`;
+  const m = d.meta, p = m.passage || {};
+  const incidents = (p.incidents || []).length;
+  const etatPassage = p.date ? (p.dgec_code === 0 && p.ademe_code === 0 && !incidents ? ["ok", "Passage du " + dateFr(p.date) + " OK"] : ["warn", "Passage du " + dateFr(p.date) + " : " + (incidents ? incidents + " incident(s)" : "source en échec")]) : ["bad", "Pas de passage"];
+  const rubriques = rubriquesDuJour(d.jour?.delta);
+  const html = [`
+<p class="resume">Données du <b>${dateFr(m.donnees_du)}</b> · <span class="st ${etatPassage[0]}">${ech(etatPassage[1])}</span>${p.vpn_final ? " · VPN " + (p.vpn_final === "Disconnected" ? "éteint" : ech(p.vpn_final)) : ""}</p>
+${tuilesCee(d)}`];
   if (incidents) html.push(`<div class="bandeau bad">${(p.incidents || []).map(ech).join("<br>")}</div>`);
   if (!rubriques.length) html.push(`<p class="carte">Journée calme : aucune fiche créée, révisée, arrêtée ou entrant en vigueur.</p>`);
   for (const r of rubriques) html.push(`<section class="rubrique"><h2>${ico(r.icone)} ${ech(r.titre)} <span class="resume">(${r.items.length})</span></h2><ul class="liste">${r.items.map((i) =>
