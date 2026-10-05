@@ -14,6 +14,9 @@ export function rendre(etat, p) {
 <p>Sur l'appareil à ajouter, ou sur ce téléphone pour une seconde clé : crée une clé d'accès liée à ton compte.</p>
 <button type="button" class="btn" id="c-creer">${ico("cle")} Créer une clé d'accès</button><p id="c-etat" class="resume" aria-live="polite"></p><div id="c-secours" hidden></div></section>`;
   if (!etat.session) return `<p class="vide">Serveur injoignable : vérifie ta connexion, puis touche ↻.</p>`;
+  if (s.peut_inscrire && !s.connecte) return `<section class="carte connexion"><h2>Code accepté</h2>
+<p>Crée maintenant ta clé d'accès : le téléphone va te demander ton empreinte (ou le verrouillage de l'écran).</p>
+<button type="button" class="btn" id="c-creer">${ico("cle")} Créer ma clé d'accès</button><p id="c-etat" class="resume" aria-live="polite"></p><div id="c-secours" hidden></div></section>`;
   const premiere = !s.cles;
   return `<section class="carte connexion">
 <h2>${premiere ? "Première connexion" : "Bonjour David"}</h2>
@@ -27,7 +30,13 @@ ${premiere ? "<p>Saisis le code d'inscription reçu, puis crée ta clé d'accès
 }
 export function monter(root, etat, actions, p) {
   const msg = (t) => { root.querySelector("#c-etat").textContent = t; };
-  const erreur = (e) => msg(e.name === "NotAllowedError" ? "Opération annulée ou délai dépassé : réessaie." : e.message);
+  // Erreur affichée telle quelle (nom technique compris) et transmise au serveur pour diagnostic
+  const erreur = (e, etape) => {
+    const nom = e?.name || "Erreur", texte = e?.message || String(e);
+    msg((nom === "NotAllowedError" ? "Opération annulée ou délai dépassé : réessaie. " : "") + "(" + nom + " : " + texte + ")");
+    fetch("/api/session/erreur", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ etape, nom, message: texte, navigateur: navigator.userAgent }) }).catch(() => {});
+  };
   root.querySelector("#c-empreinte")?.addEventListener("click", async () => {
     try {
       msg("Pose ton doigt sur le capteur…");
@@ -35,12 +44,14 @@ export function monter(root, etat, actions, p) {
       const cred = await navigator.credentials.get({ publicKey: optionsConnexion(options) });
       await poster("/api/session/connexion/verifier", { defi, credential: jsonConnexion(cred) });
       await actions.apresConnexion();
-    } catch (e) { erreur(e); }
+    } catch (e) { erreur(e, "connexion"); }
   });
   root.querySelector("#c-creer").addEventListener("click", async () => {
     try {
       const code = root.querySelector("#c-code")?.value.trim();
-      if (code) await poster("/api/session/code", { code });
+      // Code déjà accepté (session provisoire de 15 min) : on ne le renvoie pas, il ne sert qu'une fois
+      const sess = await fetch("/api/session", { credentials: "same-origin" }).then((r) => r.json()).catch(() => ({}));
+      if (code && !sess.peut_inscrire) await poster("/api/session/code", { code });
       msg("Crée ta clé : pose ton doigt sur le capteur…");
       const { defi, options } = await poster("/api/session/inscription/options");
       const cred = await navigator.credentials.create({ publicKey: optionsCreation(options) });
@@ -52,6 +63,6 @@ export function monter(root, etat, actions, p) {
 Il sert si tu perds ce téléphone.<p class="code-secours">${ech(r.code_secours)}</p></div>
 <button type="button" class="btn" id="c-continuer">${ico("ok")} J'ai noté le code</button>`;
       z.querySelector("#c-continuer").addEventListener("click", () => actions.apresConnexion());
-    } catch (e) { erreur(e); }
+    } catch (e) { erreur(e, "inscription"); actions.lireSession(); }
   });
 }

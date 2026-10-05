@@ -1,5 +1,5 @@
 // sw.js — coquille en cache, API jamais en cache (session), reception des partages (documents -> expertise, lien YouTube -> Vidéos)
-const CACHE = "appli-cee-v3";
+const CACHE = "appli-cee-v4";
 const COQUILLE = ["./", "./index.html", "./css/app.css", "./manifest.webmanifest", "./js/app.js", "./js/routeur.js",
   "./js/questions.js", "./js/images.js", "./js/fichiers.js", "./js/visionneuse.js", "./js/vues/dossier-questions.js",
   "./js/format.js", "./js/donnees.js", "./js/stockage.js", "./js/fiches.js", "./js/jour.js", "./js/dossier.js", "./js/pdf.js", "./js/webauthn.js", "./js/videos.js", "./js/projets.js",
